@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") 
+}
+
+model User {
+  id            Int          @id @default(autoincrement())
+  name          String
+  email         String       @unique
+  passwordHash  String       @map("password_hash")
+  phone         String?
+  role          Role         @default(WORKER)
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+  
+  // Relations
+  createdProjects Project[]      @relation("ProjectCreator")
+  dailyReports    DailyReport[]
+  
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  WORKER
+}
+
+model Project {
+  id          Int           @id @default(autoincrement())
+  name        String
+  description String?
+  startDate   DateTime      @map("start_date")
+  endDate     DateTime?     @map("end_date")
+  budget      Float?
+  location    String?
+  status      ProjectStatus @default(PLANNED)
+  createdById Int           @map("created_by")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  
+  // Relations
+  creator       User           @relation("ProjectCreator", fields: [createdById], references: [id])
+  dailyReports  DailyReport[]
+  
+  @@map("projects")
+}
+
+enum ProjectStatus {
+  PLANNED
+  ACTIVE
+  COMPLETED
+  ON_HOLD
+  CANCELLED
+}
+
+model DailyReport {
+  id               Int      @id @default(autoincrement())
+  projectId        Int      @map("project_id")
+  userId           Int      @map("user_id")
+  date             DateTime
+  workDescription  String   @map("work_description")
+  weather          String?
+  workerCount      Int      @map("worker_count") @default(0)
+  challenges       String?
+  materialsUsed    String?  @map("materials_used")
+  equipmentUsed    String?  @map("equipment_used")
+  safetyIncidents  String?  @map("safety_incidents")
+  nextDayPlan      String?  @map("next_day_plan")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  project Project @relation(fields: [projectId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+  
+  @@map("daily_reports")
+}
