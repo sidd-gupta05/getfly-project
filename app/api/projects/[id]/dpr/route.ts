@@ -1,20 +1,24 @@
-// app/api/projects/[id]/dpr/route.ts - UPDATED
+// app/api/projects/[id]/dpr/route.ts - CORRECTED
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyToken, extractTokenFromHeader } from "@/lib/auth";
 import { ApiResponse, DPRRequest, UserRole } from "@/lib/types";
 
+// UPDATED: Correct parameter destructuring for Next.js 15
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    // UPDATED: Handle null header
+    // UPDATED: Await params
+    const { id } = await context.params;
+
+    // Handle null header
     const authHeader = request.headers.get("authorization");
     const token = extractTokenFromHeader(authHeader);
     const user = verifyToken(token);
 
-    const projectId = parseInt(params.id);
+    const projectId = parseInt(id); // Use the awaited id
 
     if (isNaN(projectId)) {
       return NextResponse.json<ApiResponse>(
@@ -131,15 +135,18 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    // UPDATED: Handle null header
+    // UPDATED: Await params
+    const { id } = await context.params;
+
+    // Handle null header
     const authHeader = request.headers.get("authorization");
     const token = extractTokenFromHeader(authHeader);
     const user = verifyToken(token);
 
-    const projectId = parseInt(params.id);
+    const projectId = parseInt(id); // Use the awaited id
 
     if (isNaN(projectId)) {
       return NextResponse.json<ApiResponse>(

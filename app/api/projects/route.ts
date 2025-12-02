@@ -1,4 +1,3 @@
-// app/api/projects/route.ts - UPDATED
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyToken, extractTokenFromHeader } from "@/lib/auth";
@@ -11,26 +10,21 @@ import {
 
 export async function GET(request: NextRequest) {
   try {
-    // UPDATED: Handle null header
     const authHeader = request.headers.get("authorization");
     const token = extractTokenFromHeader(authHeader);
     const user = verifyToken(token);
 
-    // Get query parameters
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status") as ProjectStatus;
     const limit = parseInt(searchParams.get("limit") || "10");
     const offset = parseInt(searchParams.get("offset") || "0");
 
-    // Build where clause
     const where: any = {};
     if (status) {
       where.status = status;
     }
 
-    // Check role-based access
     if (user.role === "WORKER") {
-      // Workers can only see projects they've reported on
       const userProjects = await prisma.dailyReport.findMany({
         where: { userId: user.userId },
         select: { projectId: true },
@@ -39,7 +33,6 @@ export async function GET(request: NextRequest) {
       where.id = { in: userProjects.map((p) => p.projectId) };
     }
 
-    // Fetch projects
     const [projects, total] = await Promise.all([
       prisma.project.findMany({
         where,
@@ -89,12 +82,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // UPDATED: Handle null header
     const authHeader = request.headers.get("authorization");
     const token = extractTokenFromHeader(authHeader);
     const user = verifyToken(token);
 
-    // Check role (only admin and manager can create projects)
     if (!["ADMIN", "MANAGER"].includes(user.role)) {
       return NextResponse.json<ApiResponse>(
         {
@@ -107,7 +98,6 @@ export async function POST(request: NextRequest) {
 
     const body: ProjectRequest = await request.json();
 
-    // Validate required fields
     if (!body.name || !body.startDate) {
       return NextResponse.json<ApiResponse>(
         {
@@ -118,7 +108,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create project
     const project = await prisma.project.create({
       data: {
         name: body.name,

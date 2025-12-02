@@ -1,4 +1,3 @@
-// app/api/auth/register/route.ts - UPDATED
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword, generateToken } from "@/lib/auth";
@@ -13,7 +12,6 @@ export async function POST(request: NextRequest) {
   try {
     const body: RegisterRequest = await request.json();
 
-    // Validate required fields
     if (!body.name || !body.email || !body.password) {
       return NextResponse.json<ApiResponse>(
         {
@@ -24,7 +22,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email: body.email },
     });
@@ -39,10 +36,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password
     const passwordHash = await hashPassword(body.password);
 
-    // Create user
     const user = await prisma.user.create({
       data: {
         name: body.name,
@@ -53,10 +48,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Generate token
     const token = generateToken(user.id, user.email, user.role as UserRole);
 
-    // Return user data without password
     const { passwordHash: _, ...userWithoutPassword } = user;
 
     return NextResponse.json<ApiResponse<AuthResponse>>(

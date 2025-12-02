@@ -1,4 +1,3 @@
-// lib/auth.ts - UPDATED
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import { JWTUserPayload, UserRole } from './types'

@@ -1,4 +1,3 @@
-// app/api/auth/login/route.ts - UPDATED
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword, generateToken } from "@/lib/auth";
@@ -8,7 +7,6 @@ export async function POST(request: NextRequest) {
   try {
     const body: LoginRequest = await request.json();
 
-    // Validate required fields
     if (!body.email || !body.password) {
       return NextResponse.json<ApiResponse>(
         {
@@ -19,7 +17,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find user
     const user = await prisma.user.findUnique({
       where: { email: body.email },
     });
@@ -50,10 +47,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate token
     const token = generateToken(user.id, user.email, user.role as UserRole);
 
-    // Return user data without password
     const { passwordHash, ...userWithoutPassword } = user;
 
     return NextResponse.json<ApiResponse<AuthResponse>>({

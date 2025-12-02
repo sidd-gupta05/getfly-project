@@ -1,4 +1,5 @@
-// app/api/projects/[id]/route.ts - UPDATED
+// IMPORTANT: Export the handler functions with proper parameter destructuring
+// app/api/projects/[id]/route.ts - UPDATED FOR NEXT.JS 15
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyToken, extractTokenFromHeader } from "@/lib/auth";
@@ -9,29 +10,42 @@ import {
   UserRole,
 } from "@/lib/types";
 
+async function parseParams(params: Promise<{ id: string }>) {
+  return await params;
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // UPDATED: Handle null header
-    const authHeader = request.headers.get("authorization");
-    const token = extractTokenFromHeader(authHeader);
-    const user = verifyToken(token);
+    const { id } = await parseParams(params);
 
-    const projectId = parseInt(params.id);
-
-    if (isNaN(projectId)) {
+    const projectId = parseInt(id);
+    if (isNaN(projectId) || projectId <= 0) {
       return NextResponse.json<ApiResponse>(
         {
           success: false,
-          error: "Invalid project ID",
+          error: "Invalid project ID. Must be a positive number.",
         },
         { status: 400 }
       );
     }
 
-    // Find project
+    const authHeader = request.headers.get("authorization");
+    if (!authHeader) {
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          error: "Authentication required",
+        },
+        { status: 401 }
+      );
+    }
+
+    const token = extractTokenFromHeader(authHeader);
+    const user = verifyToken(token);
+
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       include: {
@@ -63,15 +77,13 @@ export async function GET(
       return NextResponse.json<ApiResponse>(
         {
           success: false,
-          error: "Project not found",
+          error: `Project with ID ${projectId} not found`,
         },
         { status: 404 }
       );
     }
 
-    // Check access for workers
     if (user.role === "WORKER" && project.createdById !== user.userId) {
-      // Check if worker has reported on this project
       const hasAccess = await prisma.dailyReport.findFirst({
         where: {
           projectId,
@@ -96,22 +108,36 @@ export async function GET(
     });
   } catch (error: any) {
     console.error("Get project error:", error);
+
+    if (error.name === "AuthError") {
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          error: "Invalid or expired token",
+        },
+        { status: 401 }
+      );
+    }
+
     return NextResponse.json<ApiResponse>(
       {
         success: false,
         error: error.message || "Internal server error",
       },
-      { status: error.name === "AuthError" ? 401 : 500 }
+      { status: 500 }
     );
   }
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    // UPDATED: Handle null header
+    // UPDATED: Await params
+    const { id } = await context.params;
+
+    // Handle null header
     const authHeader = request.headers.get("authorization");
     const token = extractTokenFromHeader(authHeader);
     const user = verifyToken(token);
@@ -127,7 +153,7 @@ export async function PUT(
       );
     }
 
-    const projectId = parseInt(params.id);
+    const projectId = parseInt(id); // Use the awaited id
 
     if (isNaN(projectId)) {
       return NextResponse.json<ApiResponse>(
@@ -216,10 +242,13 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    // UPDATED: Handle null header
+    // UPDATED: Await params
+    const { id } = await context.params;
+
+    // Handle null header
     const authHeader = request.headers.get("authorization");
     const token = extractTokenFromHeader(authHeader);
     const user = verifyToken(token);
@@ -235,7 +264,7 @@ export async function DELETE(
       );
     }
 
-    const projectId = parseInt(params.id);
+    const projectId = parseInt(id); // Use the awaited id
 
     if (isNaN(projectId)) {
       return NextResponse.json<ApiResponse>(
