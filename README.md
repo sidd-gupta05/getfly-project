@@ -9,12 +9,12 @@ A comprehensive Construction Field Management System built with modern web techn
 ![NeonDB](https://img.shields.io/badge/NeonDB-PostgreSQL-green)
 ![Postman](https://img.shields.io/badge/API-Tested-orange)
 
-## ✨ Features
+##  Features
 
-- ** User Management**: Admin, Manager, Worker roles with role-based access control
-- ** Project Management**: Create, read, update, and delete construction projects
-- ** Daily Progress Reports (DPR)**: Track daily work, weather, materials, and challenges
-- ** JWT Authentication**: Secure login and session management
+- **User Management**: Admin, Manager, Worker roles with role-based access control
+- **Project Management**: Create, read, update, and delete construction projects  
+- **Daily Progress Reports (DPR)**: Track daily work, weather, materials, and challenges
+- **JWT Authentication**: Secure login and session management
 
 ## API Documentation
 
