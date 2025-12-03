@@ -16,6 +16,32 @@ A comprehensive Construction Field Management System built with modern web techn
 - ** Daily Progress Reports (DPR)**: Track daily work, weather, materials, and challenges
 - ** JWT Authentication**: Secure login and session management
 
+## API Documentation
+
+### Live API Testing
+🔗 **[Postman Collection](https://sidd66.postman.co/workspace/Personal-Workspace~208509c3-6d5e-4e99-adff-8eaca3f79b0c/folder/38580206-674f320a-cb5f-4b82-90d6-7e95fe0d8c87?action=share&creator=38580206&ctx=documentation)**
+
+### Base URL
+```
+http://localhost:3000/api
+```
+
+##  Testing
+
+### Run API Tests
+```bash
+# Using the Postman collection
+# Import the collection from the link above
+```
+
+### Manual Testing Flow
+1. Login with admin credentials
+2. Create a new project
+3. Add daily progress reports
+4. Test role-based permissions
+5. Verify data persistence
+
+
 ## 🛠️ Tech Stack
 
 | Technology | Purpose | Version |
@@ -129,31 +155,6 @@ yarn start
 # Open Prisma Studio to view/edit database
 npx prisma studio
 ```
-
-## 📡 API Documentation
-
-### Live API Testing
-🔗 **[Postman Collection](https://sidd66.postman.co/workspace/Personal-Workspace~208509c3-6d5e-4e99-adff-8eaca3f79b0c/folder/38580206-674f320a-cb5f-4b82-90d6-7e95fe0d8c87?action=share&creator=38580206&ctx=documentation)**
-
-### Base URL
-```
-http://localhost:3000/api
-```
-
-##  Testing
-
-### Run API Tests
-```bash
-# Using the Postman collection
-# Import the collection from the link above
-```
-
-### Manual Testing Flow
-1. Login with admin credentials
-2. Create a new project
-3. Add daily progress reports
-4. Test role-based permissions
-5. Verify data persistence
 
 ##  Deployment
 
